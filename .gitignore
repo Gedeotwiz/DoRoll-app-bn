@@ -32,6 +32,8 @@ cmake-build-debug/
 
 ## Plugin-specific files:
 
+.env
+
 # IntelliJ
 out/
 
