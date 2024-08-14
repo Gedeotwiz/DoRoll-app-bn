@@ -30,5 +30,8 @@ export class TaskController {
   await this.taskRepository.delete(index); 
 }
 
+async deleteAllTasks(): Promise<void> {
+  await this.taskRepository.clear(); 
+}
   
 }
