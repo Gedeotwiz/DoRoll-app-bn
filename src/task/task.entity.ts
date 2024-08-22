@@ -7,6 +7,7 @@ export class Task {
   @PrimaryGeneratedColumn()
   id: number;
 
+
   @Column()
   title: string;
 
@@ -14,7 +15,7 @@ export class Task {
   description: string;
 
   @Column()
-  time: Date;
+  time: string;
 
   @CreateDateColumn()
   createdAt: Date;
