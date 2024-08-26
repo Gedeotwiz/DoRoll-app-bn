@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './task.entity';
+import { Between } from 'typeorm';
 
 @Injectable()
 export class TaskService {
@@ -47,5 +48,49 @@ export class TaskService {
     queryBuilder.andWhere('task.title ILIKE :title', { title: `%${criteria.title}%` });
   }
     return queryBuilder.getMany();
+  }
+
+  async getTasksByStatus(status: string): Promise<Task[]> {
+    return this.taskRepository.find({ where: { status } });
+  }
+
+// fliterling api using period
+
+  private getDateRange(period: string): { startDate: Date; endDate: Date } {
+    const now = new Date();
+    let startDate: Date;
+    let endDate: Date;
+
+    switch (period) {
+      case 'today':
+        startDate = new Date(now.setHours(0, 0, 0, 0));
+        endDate = new Date(now.setHours(23, 59, 59, 999));
+        break;
+      case 'this-week':
+        const dayOfWeek = now.getDay();
+        const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); 
+        startDate = new Date(now.setDate(diff));
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now.setDate(startDate.getDate() + 6));
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'this-month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      default:
+        startDate = new Date(0); 
+        endDate = new Date();
+    }
+    return { startDate, endDate };
+  }
+  async getTasks(period: string): Promise<Task[]> {
+    const { startDate, endDate } = this.getDateRange(period);
+    return this.taskRepository.find({
+      where: {
+        createdAt: Between(startDate, endDate),
+      },
+    });
   }
 }

@@ -11,6 +11,7 @@ import { JwtAuthGuard } from 'src/Auth/gaurd/jwt.auth.gaurd';
 import { MarkTaskDto } from './dto/markdone.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskService } from './task.service';
+import { FilterTasksDto } from './dto/filterDto';
 
 interface UpdateUserResponse {
   message: string;
@@ -59,11 +60,12 @@ export class TaskController {
       throw new HttpException('Failed to create task', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
+  
+  
   @Get()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Roles(UserRole.ADMIN || UserRole.USER)
+  @Roles(UserRole.ADMIN,UserRole.USER)
   async getAllTasks(@Req() req: Request): Promise<{ message: string; data?: Task[] }> {
     try {
      const tasks = await this.taskRepository.find();
@@ -165,11 +167,14 @@ export class TaskController {
   }
 
   @Get('search')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.USER,UserRole.ADMIN)
   async searchTasks(
     @Query('title') title?: string,
   ): Promise<{ message: string; data: Task[] }> {
     try {
-      const tasks = await this.taskService.searchTasks({ title }); // Pass an object with the title property
+      const tasks = await this.taskService.searchTasks({ title });
       console.log(tasks);
       if (tasks.length === 0) {
         return { message: 'No tasks found', data: [] };
@@ -180,5 +185,25 @@ export class TaskController {
       console.log(error);
       throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @Get('/status')
+  @Get('search')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.USER,UserRole.ADMIN)
+  async getTasksByStatus(@Query() query: FilterTasksDto): Promise<Task[]> {
+    return this.taskService.getTasksByStatus(query.status);
+  }
+
+  @Get('/filter/period')
+  @Get('search')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.USER,UserRole.ADMIN)
+  async getTasks(
+    @Query('period') period: string, 
+  ): Promise<Task[]> {
+    return this.taskService.getTasks(period);
   }
 }
