@@ -1,6 +1,7 @@
 
-import { Entity, Column, PrimaryGeneratedColumn,CreateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn,CreateDateColumn, ManyToOne } from 'typeorm';
 import { TaskStatus } from './task.enum';
+import { User } from 'src/User/user.entity';
 
 @Entity()
 export class Task {
@@ -26,4 +27,10 @@ export class Task {
     default: 'ON-TRACK',
   })
   status: string;
+
+  @ManyToOne(() => User, (user) => user.tasks)
+  user: User;
+
+  @Column()
+  userId: number;
 }

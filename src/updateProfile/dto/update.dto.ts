@@ -1,8 +1,8 @@
+
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsNotEmpty, IsPhoneNumber, IsString, IsStrongPassword, IsUppercase } from 'class-validator';  
-import { UserRole } from 'src/User/user.entity';
+import { IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, IsStrongPassword, IsUppercase } from 'class-validator';  
  
-export class Signup {  
+export class UpdateUserDto {  
     @IsNotEmpty({ message: "Please provide your first name" })  
     @IsUppercase({ message: "First name should be in uppercase letters" })  
     @IsString()
@@ -24,10 +24,16 @@ export class Signup {
     @ApiProperty()    
     phoneNumber: string;
     
-    @IsNotEmpty({ message: "Please provide your phone number" }) 
+    
+     @IsOptional()
+     @IsString()
+     @ApiProperty()
+    currentPassword?: string;
+
+    @IsOptional()
+    @IsString()
     @ApiProperty()
-    @IsStrongPassword({minLength:8,minNumbers:3,minUppercase:1,minSymbols:1},
-        {message:"Please password must be strong password containing uppercase,lowercase, number and special characters"})  
-    password: string;
-  
+    newPassword?: string;
+
+    profileImage:string
 }

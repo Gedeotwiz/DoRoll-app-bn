@@ -20,4 +20,8 @@ export class CreateTaskDto {
   })
   @ApiProperty({ example: '10/03/2024', description: 'The time you are supposed to complete the task, in MM/DD/YYYY format' })
   time: string;
+
+  @IsNotEmpty({message:"Please provide user who create a task"})
+  @ApiProperty()
+  userId: number;
 }

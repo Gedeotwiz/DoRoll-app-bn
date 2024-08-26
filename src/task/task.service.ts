@@ -25,11 +25,27 @@ export class TaskService {
     return updatedTask;
   }
 
+  async markTaskAsDone(index: number, task: Partial<Task>): Promise<Task> {
+    await this.taskRepository.update(index, task);
+    const TaskMarked = await this.taskRepository.findOne({ where: { id: index } });
+    
+    return TaskMarked;
+  }
+
   async deleteTask(index: number): Promise<void> {
     await this.taskRepository.delete(index); 
   }
 
   async deleteAllTasks(): Promise<void> {
     await this.taskRepository.clear(); 
+  }
+
+  async searchTasks(criteria: { title?: string }): Promise<Task[]> {
+    const queryBuilder = this.taskRepository.createQueryBuilder('task');
+
+   if (criteria.title) {
+    queryBuilder.andWhere('task.title ILIKE :title', { title: `%${criteria.title}%` });
+  }
+    return queryBuilder.getMany();
   }
 }

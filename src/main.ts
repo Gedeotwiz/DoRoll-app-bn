@@ -7,6 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('API/V1');
   app.useGlobalPipes(new ValidationPipe({transform: true,}));
+  app.enableCors();
   const config = new DocumentBuilder()
   .setTitle('DoRoll API')
   .setDescription('DoRoll application Api in nest js')
@@ -16,6 +17,6 @@ const document = SwaggerModule.createDocument(app, config);
 SwaggerModule.setup('api', app, document,{customSiteTitle: 'DoRoll API Documentation'})
   
 
-  await app.listen(3000);
+  await app.listen(3001);
 }
 bootstrap();
