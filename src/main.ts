@@ -6,17 +6,25 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('API/V1');
-  app.useGlobalPipes(new ValidationPipe({transform: true,}));
-  app.enableCors();
-  const config = new DocumentBuilder()
-  .setTitle('DoRoll API')
-  .setDescription('DoRoll application Api in nest js')
-  .addBearerAuth()
-  .build();
-const document = SwaggerModule.createDocument(app, config);
-SwaggerModule.setup('api', app, document,{customSiteTitle: 'DoRoll API Documentation'})
-  
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
+  app.enableCors({
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+    allowedHeaders: 'Content-Type, Authorization', 
+  });
+  const config = new DocumentBuilder()
+    .setTitle('DoRoll API')
+    .setDescription('DoRoll application API in NestJS')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document, {
+    customSiteTitle: 'DoRoll API Documentation',
+  });
   await app.listen(3001);
 }
+
 bootstrap();

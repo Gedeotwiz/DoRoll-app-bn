@@ -8,7 +8,7 @@ export class Login {
     @ApiProperty()   
     email: string;  
 
-    @IsNotEmpty({ message: "Please provide your phone number" }) 
+    @IsNotEmpty({ message: "Please provide your password" }) 
     @ApiProperty()
      password: string;
 
