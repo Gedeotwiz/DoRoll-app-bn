@@ -17,13 +17,18 @@ interface UpdateUserResponse {
   message: string;
   data: Task;
 }
+interface Response {
+  message: string;
+  data: Task | null;
+}
 
-  interface Request {
-    user?: {
-      userId: number;
-      role: UserRole;
-    };
-  }
+interface RequestWithUser extends Request {
+  user?: {
+    userId: number;
+    role: UserRole;
+  };
+}
+
 
 @ApiTags('Task')
 @Controller('tasks')
@@ -65,8 +70,8 @@ export class TaskController {
   @Get()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Roles(UserRole.ADMIN,UserRole.USER)
-  async getAllTasks(@Req() req: Request): Promise<{ message: string; data?: Task[] }> {
+  @Roles(UserRole.ADMIN)
+  async getAllTasks(): Promise<{ message: string; data?: Task[] }> {
     try {
      const tasks = await this.taskRepository.find();
   
@@ -80,6 +85,22 @@ export class TaskController {
       throw new HttpException('Failed to retrieve tasks', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+
+  @Get("userId/tasks")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.USER)
+  async getUserTasks(@Req() req: RequestWithUser): Promise<{ message: string; data?: Task[] }> {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new HttpException('User ID not found', HttpStatus.BAD_REQUEST);
+    }
+    return this.taskService.getUserTasks(userId);
+
+  }
+  
+
   
 
   @Put(':id')
@@ -175,7 +196,6 @@ export class TaskController {
   ): Promise<{ message: string; data: Task[] }> {
     try {
       const tasks = await this.taskService.searchTasks({ title });
-      console.log(tasks);
       if (tasks.length === 0) {
         return { message: 'No tasks found', data: [] };
       }

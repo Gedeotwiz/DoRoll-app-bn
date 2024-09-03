@@ -5,9 +5,10 @@ import { Task } from './task/task.entity';
 import { AuthModule } from './Auth/auth.module';
 import { User } from './User/user.entity';
 import { UserModule } from './User/user.module';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { UpdateProfileModule } from './updateProfile/update.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ResetToken } from './entity/resetToken.entity';
+
 
 @Module({
   imports: [
@@ -22,14 +23,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [User, Task],
-        synchronize: false,
+        entities: [User, Task,ResetToken],
+        synchronize: true,
       }),
     }),
     TaskModule,
     AuthModule,
     UserModule,
-    CloudinaryModule,
     UpdateProfileModule,
   ],
 })

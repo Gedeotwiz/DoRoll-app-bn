@@ -1,4 +1,4 @@
-import { Body, Controller, Post, ConflictException, InternalServerErrorException } from "@nestjs/common";  
+import { Body, Controller, Post, ConflictException, InternalServerErrorException, BadRequestException, NotFoundException } from "@nestjs/common";  
 import { ApiTags } from "@nestjs/swagger";  
 import { InjectRepository } from "@nestjs/typeorm";  
 import { User } from "src/User/user.entity";  
@@ -7,6 +7,8 @@ import { Signup } from "./dto/user.dto";
 import * as bcrypt from 'bcrypt'; 
 import { Login } from "./dto/login.dto";
 import { AuthService } from "./auth.service";
+import { ForgotPasswordDto } from "./dto/forgot.dto";
+import { ResetPasswordDto } from "./dto/resent.dto";
 
 interface CreateTaskResponse {  
     message: string;  
@@ -63,5 +65,37 @@ export class AccessFile {
     @Post('login')
     async loginUser(@Body() loginUserDto: Login): Promise<{ message: string; token: string }> {
         return this.authService.loginUser(loginUserDto);
+    }
+
+    @Post('forgot-password')
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto): Promise<{ message: string }> {
+    try {
+      await this.authService.forgotPassword(forgotPasswordDto.email);
+      return {message:'success Password reset link sent'};
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        return {message:"Not found"}
+      }
+      console.error('Unexpected error during forgot-password:', error);
+      throw new InternalServerErrorException('Fail to send request');  
+    }
+  }
+
+    @Post('reset-password')
+    async resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<{ message: string }> {
+      try {
+        await this.authService.resetPassword(
+          resetPasswordDto.resetToken,
+          resetPasswordDto.newPassword,
+        );
+        return {message:'Password successfuly sent'};
+    } catch (error) {
+        if (
+          error instanceof BadRequestException ||
+          error instanceof NotFoundException
+        ) {
+            return {message:`${error}`};        }
+        throw new InternalServerErrorException('Fail to resent password');  
+    }
     }
 }

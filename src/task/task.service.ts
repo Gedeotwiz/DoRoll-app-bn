@@ -1,11 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Req } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './task.entity';
 import { Between } from 'typeorm';
+import { UserRole } from 'src/User/user.entity';
+
+interface Request {
+  user?: {
+    userId: number;
+    role: UserRole;
+  };
+}
 
 @Injectable()
 export class TaskService {
+  find(arg0: { where: { id: string; }; }) {
+    throw new Error('Method not implemented.');
+  }
+  findOne(arg0: { where: { id: string; }; }) {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     @InjectRepository(Task)
     private readonly taskRepository: Repository<Task>,
@@ -17,6 +31,21 @@ export class TaskService {
   
   getAllTask(){
     return this.taskRepository.find()
+  }
+
+  async getUserTasks(userId: number): Promise<{ message: string; data?: Task[] }> {
+    try {
+      const tasks = await this.taskRepository.find({ where: { userId } });
+
+      if (!tasks || tasks.length === 0) {
+        throw new HttpException('No tasks found', HttpStatus.NOT_FOUND);
+      }
+
+      return { message: 'Tasks successfully retrieved', data: tasks };
+    } catch (error) {
+      console.error('Error retrieving tasks:', error.message);
+      throw new HttpException('Failed to retrieve tasks', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async updateTask(index: number, task: Partial<Task>): Promise<Task> {

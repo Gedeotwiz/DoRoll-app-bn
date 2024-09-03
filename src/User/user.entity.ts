@@ -5,7 +5,7 @@ export enum UserRole {
   ADMIN = 'admin',
 } 
 
-@Entity()  
+@Entity("users")  
 export class User {  
     @PrimaryGeneratedColumn()  
     id: string;  
@@ -41,4 +41,10 @@ export class User {
 
     @Column({ default: 'jant' })
     profileImage:string
+
+    @Column({ nullable: true })
+   resetPasswordToken: string;
+
+   @Column({ nullable: true })
+   resetPasswordExpire: Date;
 }

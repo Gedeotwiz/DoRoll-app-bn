@@ -32,7 +32,7 @@ export default class UserOperation {
     async getAllUser(): Promise<CreateResponse> {
         try {
             const users = await this.userRepository.find({
-                select: ['id', 'firstName', 'lastName', 'email', 'role', 'createdAt'],
+                select: ['id', 'firstName', 'lastName', 'email', 'role', 'createdAt',],
             });
             if (!users || users.length === 0) {
                 throw new NotFoundException('Users not found');
@@ -43,6 +43,23 @@ export default class UserOperation {
             };
         } catch (error) {
             throw new HttpException('Failed to retrieve users', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @Get(':id')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard) 
+    @Roles(UserRole.USER)
+    async getUser(@Param('id') id: string): Promise< {message: string; data?: User}> {
+        const user = await this.userRepository.findOne({ where: { id } });
+        try {
+        if (!user) {
+            throw new NotFoundException(`User with ID ${id} not found`);
+        }
+         return {message:"user successfuly retrived",data:user}
+        } catch (error) {
+            throw new HttpException('Failed to retrive user', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
