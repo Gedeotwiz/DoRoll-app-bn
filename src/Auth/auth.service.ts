@@ -75,7 +75,6 @@ export class AuthService {
       }
        const scret='qawsedrftgyh'
       const token = jwt.sign({ userId: user.id, userRole: user.role }, scret, { expiresIn: '1h' });
-       localStorage.setItem("token",token)
       return {
         message: 'Login successful',
         token,
