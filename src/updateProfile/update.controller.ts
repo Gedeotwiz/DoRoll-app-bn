@@ -129,6 +129,7 @@ export class ProfileController {
     
       const result = await this.profileService.uploadImage(file);
       const imageUrl = result.secure_url;
+      console.log(imageUrl)
     
       if (!userId) {
         throw new NotFoundException('User not found');
