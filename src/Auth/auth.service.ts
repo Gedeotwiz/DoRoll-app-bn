@@ -10,26 +10,53 @@ import { ForgotPasswordDto } from './dto/forgot.dto';
 import { UserService } from 'src/User/user.service';
 import * as crypto from 'crypto';
 import { ResetPasswordDto } from './dto/resent.dto';
-import { EmailService } from './email.service';
 import { v4 as uuidv4 } from 'uuid';
 import { ResetToken } from 'src/entity/resetToken.entity';
+import * as nodemailer from 'nodemailer'; // Import nodemailer 
 
 
 @Injectable()
 export class AuthService {
   private readonly jwtSecret: string;
+  private transporter: nodemailer.Transporter; 
 
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
     private readonly usersService: UserService,
-    private readonly emailService: EmailService,
     @InjectRepository(ResetToken) 
     private readonly resetTokenRepository: Repository<ResetToken> 
   ) {
     this.jwtSecret = configService.get<string>('JWT_SECRET');
+    this.transporter = nodemailer.createTransport({  
+      host: 'smtp.ethereal.email', 
+      port: 587,  
+      secure: false,   
+      auth: {  
+        user: 'noah83@ethereal.email',
+        pass: 'kguQUkhn2784JKD83Q' 
+      },  
+    });
   }
+
+  async sendEmail(to: string, subject: string, text: string, html: string): Promise<void> {  
+    const mailOptions = {  
+      from: '"Maddison Foo Koch 👻" <noah83@ethereal.email>',  
+      to:to,  
+      subject,  
+      text,  
+      html,  
+    };  
+
+    try {  
+      const info = await this.transporter.sendMail(mailOptions);  
+        
+    } catch (error) {  
+      console.error("Error sending email:", error);  
+      throw new InternalServerErrorException('An error occurred while sending email');  
+    }  
+  }  
 
   async createTask(user: User): Promise<User> {
     return await this.userRepository.save(user);
@@ -88,12 +115,12 @@ export class AuthService {
     await this.resetTokenRepository.save(resetToken);
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset?token=${token}`;
-    await this.emailService.sendEmail(
-      email,
-      'Password Reset Request',
-      `Please use the following link to reset your password: ${resetUrl}`,
-      `<p>Please use the following link to reset your password:</p><a href="${resetUrl}">${resetUrl}</a>`,
-    );
+    await this.sendEmail(  
+      email,  
+      'Password Reset Request',  
+      `Please use the following link to reset your password: ${resetUrl}`,  
+      `<p>Please use the following link to reset your password:</p><a href="${resetUrl}">${resetUrl}</a>`,  
+    );  
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {

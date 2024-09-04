@@ -10,7 +10,6 @@ import { AuthService } from "./auth.service";
 import { JwtStrategy } from "./gaurd/jwt.stratege";
 import { Authguard } from "./gaurd/auth.gaurd";
 import { UserService } from "src/User/user.service";
-import { EmailService } from "./email.service";
 import { AccessFile } from "./auth.controller";
 
 const screKey='qawsedrftgyh'
@@ -25,7 +24,7 @@ const screKey='qawsedrftgyh'
       signOptions: { expiresIn: '1h' },
     }),
   ],
-  providers: [AuthService, JwtStrategy, Authguard, UserService, EmailService],
+  providers: [AuthService, JwtStrategy, Authguard, UserService],
   controllers: [AccessFile],
   exports: [AuthService],
 })
