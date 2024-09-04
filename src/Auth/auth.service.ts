@@ -73,8 +73,8 @@ export class AuthService {
       if (!isPasswordValid) {
         throw new UnauthorizedException('Invalid email or password');
       }
-
-      const token = jwt.sign({ userId: user.id, userRole: user.role }, this.jwtSecret, { expiresIn: '1h' });
+       const scret='qawsedrftgyh'
+      const token = jwt.sign({ userId: user.id, userRole: user.role }, scret, { expiresIn: '1h' });
 
       return {
         message: 'Login successful',
@@ -91,8 +91,9 @@ export class AuthService {
   }
 
   async verifyToken(token: string): Promise<any> {
+    const scret='qawsedrftgyh'
     try {
-      const decoded = jwt.verify(token, this.jwtSecret);
+      const decoded = jwt.verify(token, scret);
       return decoded;
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
